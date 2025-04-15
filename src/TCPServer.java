@@ -1,7 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
 
 class TCPServer {
     public static final int SERVER_PORT = 9001;
@@ -15,6 +13,7 @@ class TCPServer {
         ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
         DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
+        // TODO: check if operation is valid
         for (int i = 0; i < TCPClient.TOTAL_EQUATIONS; i++) {
             // Read equation from client
             Message equation = (Message) inFromClient.readObject();
@@ -28,7 +27,7 @@ class TCPServer {
         }
     }
 
-    public static Double calculate(Double[] operands, OperatorType[] operators) {
+    public static Double calculate(Double[] operands, Operator[] operators) {
         double solution;
 
         if (operatorIsPriority(operators[0])) {
@@ -45,21 +44,35 @@ class TCPServer {
         return solution;
     }
 
-    private static double operate(double val1, double val2, OperatorType operator) {
-        if (operator == OperatorType.ADD) {
+    private static double operate(double val1, double val2, Operator operator) {
+        /*if (operator == Operator.ADD) {
             return val1 + val2;
-        } else if (operator == OperatorType.SUB) {
+        } else if (operator == Operator.SUB) {
             return val1 - val2;
-        } else if (operator == OperatorType.MUL) {
+        } else if (operator == Operator.MUL) {
             return val1 * val2;
-        } else if (operator == OperatorType.DIV) {
+        } else if (operator == Operator.DIV) {
             return val1 / val2;
         } else {
             return val1 % val2;
+        }*/
+
+        //double result = Operator2.ADD.apply(3, 5); // Apply an operation directly
+        //try { Operator2.DIV.apply(5, 0); } catch (ArithmeticException e) { System.out.println(e.getMessage()); } // Test divide by zero error handling
+        return Operator2.fromSymbol("*").apply(4, 6); // Convert a symbol to an operator and use it
+    }
+
+    private static boolean isValidOperation(Double[] operands, Operator[] operators) {
+        if (operators[0] == Operator.DIV && operands[1] == 0 || operators[1] == Operator.DIV && operands[2] == 0) { // Divide by 0
+            return false;
+        } else if (operators[0] == Operator.MOD && operands[1] == 0 || operators[1] == Operator.MOD && operands[2] == 0) { // Mod by 0
+            return false;
+        } else {
+            return true;
         }
     }
 
-    private static boolean operatorIsPriority(OperatorType ot) {
-        return ot == OperatorType.MUL || ot == OperatorType.DIV || ot == OperatorType.MOD;
+    private static boolean operatorIsPriority(Operator ot) {
+        return ot == Operator.MUL || ot == Operator.DIV || ot == Operator.MOD;
     }
 }

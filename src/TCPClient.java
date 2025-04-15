@@ -15,9 +15,9 @@ class TCPClient {
 
         // Equations to send
         List<Message> equations = new ArrayList<>();
-        equations.add(new Message(1.0, OperatorType.ADD, 2.0, OperatorType.ADD, 3.0)); // 1+2+3 = 6
-        equations.add(new Message(1.0, OperatorType.MUL, 2.0, OperatorType.ADD, 3.0)); // 1*2+3 = 5
-        equations.add(new Message(1.0, OperatorType.ADD, 2.0, OperatorType.MUL, 3.0)); // 1+2*3 = 7
+        equations.add(new Message(1.0, Operator.ADD, 2.0, Operator.ADD, 3.0)); // 1+2+3 = 6
+        equations.add(new Message(1.0, Operator.MUL, 2.0, Operator.ADD, 3.0)); // 1*2+3 = 5
+        equations.add(new Message(1.0, Operator.ADD, 2.0, Operator.MUL, 3.0)); // 1+2*3 = 7
 
         // Send each equation and receive each solution
         for (Message equation : equations) {
