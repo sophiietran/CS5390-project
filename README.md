@@ -1,7 +1,7 @@
 # CS5390 - Computer Networks Project
 ## Network Application - Math Server and Clients
 ### **Overview**
-This project involves implementing a network application using Java TCP Sockets. The application includes a centralized Math server and multiple clients that can request basic mathemtical calculations.
+This project involves implementing a network application using Java TCP Sockets. The application includes a centralized Math server and multiple clients that can request basic mathematical calculations.
 
 ### **Server Application**
 - Keeps track of all users (who, when, length of connection)
