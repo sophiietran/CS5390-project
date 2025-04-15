@@ -2,19 +2,19 @@ import java.io.Serializable;
 
 
 public class Message implements Serializable {
-    public enum MessageType { CALCULATE, CHAT }
+    public enum MessageType { CALCULATE, CHAT, DISCONNECT }
 
     private MessageType messageType = MessageType.CALCULATE;
 
-    private Double operand1, operand2, operand3;
-    private Operator operator1, operator2;
+    public Double operand1, operand2, operand3;
+    public Character operator1, operator2;
 
 
     public Message(MessageType messageType) {
         this.messageType = messageType;
     }
 
-    public Message(Double operand1, Operator operator1, Double operand2, Operator operator2, Double operand3) {
+    public Message(Double operand1, Character operator1, Double operand2, Character operator2, Double operand3) {
         this.operand1 = operand1;
         this.operator1 = operator1;
         this.operand2 = operand2;
@@ -26,8 +26,12 @@ public class Message implements Serializable {
         return new Double[] {operand1, operand2, operand3};
     }
 
-    public Operator[] getOperators() {
-        return new Operator[] {operator1, operator2};
+    public Character[] getOperators() {
+        return new Character[] {operator1, operator2};
+    }
+
+    public MessageType getMessageType() {
+        return messageType;
     }
 
     public String toString() {
