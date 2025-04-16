@@ -35,6 +35,7 @@ public class Message implements Serializable {
     }
 
     public String toString() {
-        return operand1 + " " + operator1 + " " + operand2 + " " + operator2 + " " + operand3;
+        return String.format("%.2f %c %.2f %c %.2f", operand1, operator1, operand2, operator2, operand3);
+        //return operand1 + " " + operator1 + " " + operand2 + " " + operator2 + " " + operand3;
     }
 }
