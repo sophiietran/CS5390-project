@@ -18,9 +18,9 @@ class TCPClient {
             BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             System.out.println("Client connected to server using socket " + clientSocket.getLocalPort());
 
-            // Tell the server our name
+            // Tell the server our name, wait for reply
             outToServer.writeObject(new Message(Message.MessageType.HELLO, "Client1"));
-            String ack = inFromServer.readLine(); // Server will echo our name back to us, after which we can begin sending equations
+            String ack = inFromServer.readLine();
             System.out.println("Server acknowledged our name: " + ack + "\n");
 
             //for (Message equation : equations) {
@@ -44,18 +44,6 @@ class TCPClient {
                 // Receive solution from server
                 String solution = inFromServer.readLine();
                 System.out.println("Received solution: " + solution);
-                //System.out.printf("Received solution: %.4f\n", Double.parseDouble(solution));
-
-                // TODO: get rid of this and just use python to test correctness
-                // Verify calculation
-                // String expected;
-                // try {
-                //     expected = check(equation.operand1, equation.operator1, equation.operand2, equation.operator2, equation.operand3).toString();
-                // } catch (Exception e) {
-                //     expected = "Invalid equation";
-                // }
-                //System.out.println("Expected solution: " + expected + "\n");
-                //System.out.printf("Expected solution: %.4f\n", Double.parseDouble(expected));
 
                 // Run equation through Python for now to verify correctness
                 Process p = Runtime.getRuntime().exec("C:/Users/User/AppData/Local/Programs/Python/Python313/python.exe -c print(f'{" + equation.toString2() + "}')");

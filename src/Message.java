@@ -17,7 +17,7 @@ public class Message implements Serializable {
     }
 
     public Message(MessageType messageType, String clientName) {
-        this.messageType = messageType; // HELLO, CHAT, QUIT
+        this.messageType = messageType;
         this.clientName = clientName;
     }
 
@@ -27,14 +27,6 @@ public class Message implements Serializable {
         this.operand2 = operand2;
         this.operator2 = operator2;
         this.operand3 = operand3;
-    }
-
-    public Double[] getOperands() {
-        return new Double[] {operand1, operand2, operand3};
-    }
-
-    public Character[] getOperators() {
-        return new Character[] {operator1, operator2};
     }
 
     public MessageType getMessageType() {

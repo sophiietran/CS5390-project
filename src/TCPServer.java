@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 
 
+// TODO: make something to keep track of connections and their details. each client will also need their own socket.
+
 class TCPServer {
     public static final int SERVER_PORT = 9001;
 
@@ -14,10 +16,9 @@ class TCPServer {
             ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
             DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
-            // First message client will send is to tell us their name
+            // First message client will send is to tell us their name. Echo it back to them as acknowledgment.
             Message hello = (Message) inFromClient.readObject();
-            hello.getClientName(); // TODO: make object to keep track of connections and their details
-            outToClient.writeBytes(hello.getClientName() + '\n'); // Echo client's name back to them as confirmation
+            outToClient.writeBytes(hello.getClientName() + '\n');
             outToClient.flush();
 
             while (true) {
@@ -28,16 +29,13 @@ class TCPServer {
                     break;
                 } else if (equation.getMessageType() == Message.MessageType.CALC) {
                     System.out.println("Received equation: " + equation);
-
                     // Solve equation and send solution to client
                     String solution;
-                    try {
-                        solution = calculate(equation.getOperands(), equation.getOperators()).toString();
-                    } catch (Exception e) {
+                    if (isValidOperation(equation.operator1, equation.operand2, equation.operator2, equation.operand3))
+                        solution = calculate(equation).toString();
+                    else
                         solution = "Invalid equation";
-                    }
                     System.out.println("Sending solution: " + solution + "\n");
-                    //System.out.printf("Sending solution: %.4f\n\n", Double.parseDouble(solution));
                     outToClient.writeBytes(solution + '\n');
                     outToClient.flush();
                 }
@@ -49,29 +47,25 @@ class TCPServer {
         }
     }
 
-    public static Double calculate(Double[] operands, Character[] operators) throws Exception {
-        if (!isValidOperation(operands, operators)) {
-            throw new Exception("INVALID");
-        }
-
-        // TODO: maybe just catch and handle arithmetic exceptions here
+    public static Double calculate(Message eq) {
+        // TODO: try-catch and throw exception for invalid equation
         //try { Operator2.DIV.apply(5, 0); } catch (ArithmeticException e) { System.out.println(e.getMessage()); } // Test divide by zero error handling
 
         // Respect order of operations
-        if (!operatorIsPriority(operators[0]) && operatorIsPriority(operators[1])) {
-            double part = Operator.fromSymbol(operators[1]).operate(operands[1], operands[2]);
-            return Operator.fromSymbol(operators[0]).operate(operands[0], part);
+        if (!operatorIsPriority(eq.operator1) && operatorIsPriority(eq.operator2)) {
+            double part = Operator.fromSymbol(eq.operator2).operate(eq.operand2, eq.operand3);
+            return Operator.fromSymbol(eq.operator1).operate(eq.operand1, part);
         } else {
-            double part = Operator.fromSymbol(operators[0]).operate(operands[0], operands[1]);
-            return Operator.fromSymbol(operators[1]).operate(part, operands[2]);
+            double part = Operator.fromSymbol(eq.operator1).operate(eq.operand1, eq.operand2);
+            return Operator.fromSymbol(eq.operator2).operate(part, eq.operand3);
         }
     }
 
     // Check for divide by zero
-    private static boolean isValidOperation(Double[] operands, Character[] operators) {
-        if (operands[1] == 0.0 && (operators[0] == '/' || operators[0] == '%')) {
+    private static boolean isValidOperation(Character op1, Double v2, Character op2, Double v3) {
+        if (v2 == 0.0 && (op1 == '/' || op1 == '%')) {
             return false;
-        } else if (operands[2] == 0.0 && (operators[1] == '/' || operators[1] == '%')) {
+        } else if (v3 == 0.0 && (op2 == '/' || op2 == '%')) {
             return false;
         } else {
             return true;
