@@ -46,8 +46,8 @@ public class Message implements Serializable {
     }
 
     public String toString() {
-        return String.format("%.4f %c %.4f %c %.4f", operand1, operator1, operand2, operator2, operand3);
-        //return operand1 + " " + operator1 + " " + operand2 + " " + operator2 + " " + operand3;
+        //return String.format("%.4f %c %.4f %c %.4f", operand1, operator1, operand2, operator2, operand3);
+        return operand1 + " " + operator1 + " " + operand2 + " " + operator2 + " " + operand3;
     }
 
     public String toString2() {

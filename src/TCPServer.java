@@ -15,9 +15,9 @@ class TCPServer {
             DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
             // First message client will send is to tell us their name
-            Message helloMessage = (Message) inFromClient.readObject();
-            helloMessage.getClientName(); // TODO: make object to keep track of connections and their details
-            outToClient.writeBytes(helloMessage.getClientName() + '\n'); // Echo client's name back to them as confirmation
+            Message hello = (Message) inFromClient.readObject();
+            hello.getClientName(); // TODO: make object to keep track of connections and their details
+            outToClient.writeBytes(hello.getClientName() + '\n'); // Echo client's name back to them as confirmation
             outToClient.flush();
 
             while (true) {
@@ -26,21 +26,21 @@ class TCPServer {
                 if (equation.getMessageType() == Message.MessageType.QUIT) {
                     System.out.println("Client has terminated connection.");
                     break;
-                } else {
+                } else if (equation.getMessageType() == Message.MessageType.CALC) {
                     System.out.println("Received equation: " + equation);
-                }
 
-                // Solve equation and send solution to client
-                String solution;
-                try {
-                    solution = calculate(equation.getOperands(), equation.getOperators()).toString();
-                } catch (Exception e) {
-                    solution = "Invalid equation";
+                    // Solve equation and send solution to client
+                    String solution;
+                    try {
+                        solution = calculate(equation.getOperands(), equation.getOperators()).toString();
+                    } catch (Exception e) {
+                        solution = "Invalid equation";
+                    }
+                    System.out.println("Sending solution: " + solution + "\n");
+                    //System.out.printf("Sending solution: %.4f\n\n", Double.parseDouble(solution));
+                    outToClient.writeBytes(solution + '\n');
+                    outToClient.flush();
                 }
-                //System.out.println("Sending solution: " + solution + "\n");
-                System.out.printf("Sending solution: %.4f\n\n", Double.parseDouble(solution));
-                outToClient.writeBytes(solution + '\n');
-                outToClient.flush();
             }
         } catch (EOFException e) {
             // Socket closed normally
@@ -59,11 +59,11 @@ class TCPServer {
 
         // Respect order of operations
         if (!operatorIsPriority(operators[0]) && operatorIsPriority(operators[1])) {
-            double part = Operator.fromSymbol(operators[1]).apply(operands[1], operands[2]);
-            return Operator.fromSymbol(operators[0]).apply(operands[0], part);
+            double part = Operator.fromSymbol(operators[1]).operate(operands[1], operands[2]);
+            return Operator.fromSymbol(operators[0]).operate(operands[0], part);
         } else {
-            double part = Operator.fromSymbol(operators[0]).apply(operands[0], operands[1]);
-            return Operator.fromSymbol(operators[1]).apply(part, operands[2]);
+            double part = Operator.fromSymbol(operators[0]).operate(operands[0], operands[1]);
+            return Operator.fromSymbol(operators[1]).operate(part, operands[2]);
         }
     }
 

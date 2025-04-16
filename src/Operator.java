@@ -7,25 +7,25 @@
 public enum Operator {
     ADD('+') {
         @Override
-        public double apply(double val1, double val2) {
+        public double operate(double val1, double val2) {
             return val1 + val2;
         }
     },
     SUB('-') {
         @Override
-        public double apply(double val1, double val2) {
+        public double operate(double val1, double val2) {
             return val1 - val2;
         }
     },
     MUL('*') {
         @Override
-        public double apply(double val1, double val2) {
+        public double operate(double val1, double val2) {
             return val1 * val2;
         }
     },
     DIV('/') {
         @Override
-        public double apply(double val1, double val2) {
+        public double operate(double val1, double val2) {
             if (val2 == 0) {
                 throw new ArithmeticException("Division by zero");
             } else {
@@ -35,7 +35,7 @@ public enum Operator {
     },
     MOD('%') { // TODO: seems in Java, mod behaves differently than most languages
         @Override
-        public double apply(double val1, double val2) {
+        public double operate(double val1, double val2) {
             if (val2 == 0) {
                 throw new ArithmeticException("Modulo by zero");
             } else {
@@ -52,7 +52,7 @@ public enum Operator {
     }
 
     // Abstract method to implement each operator
-    public abstract double apply(double val1, double val2);
+    public abstract double operate(double val1, double val2);
 
     // Get arithmetic operation associated with character symbol
     public static Operator fromSymbol(Character symbol) {

@@ -43,25 +43,28 @@ class TCPClient {
 
                 // Receive solution from server
                 String solution = inFromServer.readLine();
-                //System.out.println("Received solution: " + solution);
-                System.out.printf("Received solution: %.4f\n", Double.parseDouble(solution));
+                System.out.println("Received solution: " + solution);
+                //System.out.printf("Received solution: %.4f\n", Double.parseDouble(solution));
 
                 // TODO: get rid of this and just use python to test correctness
                 // Verify calculation
-                String expected;
-                try {
-                    expected = check(equation.operand1, equation.operator1, equation.operand2, equation.operator2, equation.operand3).toString();
-                } catch (Exception e) {
-                    expected = "Invalid equation";
-                }
+                // String expected;
+                // try {
+                //     expected = check(equation.operand1, equation.operator1, equation.operand2, equation.operator2, equation.operand3).toString();
+                // } catch (Exception e) {
+                //     expected = "Invalid equation";
+                // }
                 //System.out.println("Expected solution: " + expected + "\n");
-                System.out.printf("Expected solution: %.4f\n", Double.parseDouble(expected));
+                //System.out.printf("Expected solution: %.4f\n", Double.parseDouble(expected));
 
                 // Run equation through Python for now to verify correctness
-                Process p = Runtime.getRuntime().exec("C:/Users/User/AppData/Local/Programs/Python/Python313/python.exe -c print(f'{" + equation.toString2() + ":.4f}')");
-                Scanner s = new Scanner(p.getInputStream(), StandardCharsets.UTF_8); System.out.println("Python's solution: " + s.nextLine()); s.close(); p.waitFor();
+                Process p = Runtime.getRuntime().exec("C:/Users/User/AppData/Local/Programs/Python/Python313/python.exe -c print(f'{" + equation.toString2() + "}')");
+                Scanner s = new Scanner(p.getInputStream(), StandardCharsets.UTF_8);
+                String expected = s.nextLine();
+                System.out.println("Python's solution: " + expected);
+                s.close();
+                p.waitFor();
                 System.out.println();
-
                 if (!solution.equals(expected)) {
                     System.out.println("Server response does not match expected solution. Terminating.");
                     outToServer.writeObject(new Message(Message.MessageType.QUIT));
@@ -76,22 +79,5 @@ class TCPClient {
         } catch (Exception e) {
             System.out.println("Exception caught in main: " + e.getMessage());
         }
-    }
-
-    // TODO: get rid of this and just use python to test correctness
-    private static Double check(Double v1, Character op1, Double v2, Character op2, Double v3) throws Exception {
-        if ((v2 == 0.0 && (op1 == '/' || op1 == '%')) || (v3 == 0.0 && (op2 == '/' || op2 == '%'))) throw new Exception("INVALID");
-        if (op1 == '*' || op1 == '/' || op1 == '%') return operate(operate(v1, v2, op1), v3, op2);
-        else if (op2 == '*' || op2 == '/' || op2 == '%') return operate(v1, operate(v2, v3, op2), op1);
-        else return operate(operate(v1, v2, op1), v3, op2);
-    }
-
-    // TODO: get rid of this and just use python to test correctness
-    private static Double operate(Double v1, Double v2, Character op) {
-        if (op == '+') return v1 + v2;
-        else if (op == '-') return v1 - v2;
-        else if (op == '*') return v1 * v2;
-        else if (op == '/') return v1 / v2;
-        else return v1 % v2;
     }
 }
