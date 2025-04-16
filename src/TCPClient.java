@@ -23,7 +23,6 @@ class TCPClient {
             String ack = inFromServer.readLine();
             System.out.println("Server acknowledged our name: " + ack + "\n");
 
-            //for (Message equation : equations) {
             for (int i = 0; i < NUM_EQUATIONS_TO_SEND; i++) {
                 // Randomly generate equation
                 Message equation = new Message( // TODO: for now only use positive values so python spits out the same answer as java for any modulo operation
