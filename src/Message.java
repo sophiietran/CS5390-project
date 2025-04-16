@@ -2,9 +2,11 @@ import java.io.Serializable;
 
 
 public class Message implements Serializable {
-    public enum MessageType { CALCULATE, CHAT, DISCONNECT }
+    public enum MessageType { HELLO, CALC, CHAT, QUIT }
 
-    private MessageType messageType = MessageType.CALCULATE;
+    private MessageType messageType = MessageType.CALC;
+
+    private String clientName;
 
     public Double operand1, operand2, operand3;
     public Character operator1, operator2;
@@ -12,6 +14,11 @@ public class Message implements Serializable {
 
     public Message(MessageType messageType) {
         this.messageType = messageType;
+    }
+
+    public Message(MessageType messageType, String clientName) {
+        this.messageType = messageType; // HELLO, CHAT, QUIT
+        this.clientName = clientName;
     }
 
     public Message(Double operand1, Character operator1, Double operand2, Character operator2, Double operand3) {
@@ -34,8 +41,16 @@ public class Message implements Serializable {
         return messageType;
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
     public String toString() {
-        return String.format("%.2f %c %.2f %c %.2f", operand1, operator1, operand2, operator2, operand3);
+        return String.format("%.4f %c %.4f %c %.4f", operand1, operator1, operand2, operator2, operand3);
         //return operand1 + " " + operator1 + " " + operand2 + " " + operator2 + " " + operand3;
+    }
+
+    public String toString2() {
+        return operand1.toString() + operator1 + operand2 + operator2 + operand3;
     }
 }

@@ -7,59 +7,61 @@
 public enum Operator {
     ADD('+') {
         @Override
-        public double apply(double a, double b) {
-            return a + b;
+        public double apply(double val1, double val2) {
+            return val1 + val2;
         }
     },
     SUB('-') {
         @Override
-        public double apply(double a, double b) {
-            return a - b;
+        public double apply(double val1, double val2) {
+            return val1 - val2;
         }
     },
     MUL('*') {
         @Override
-        public double apply(double a, double b) {
-            return a * b;
+        public double apply(double val1, double val2) {
+            return val1 * val2;
         }
     },
     DIV('/') {
         @Override
-        public double apply(double a, double b) {
-            if (b == 0) throw new ArithmeticException("Division by zero");
-            return a / b;
+        public double apply(double val1, double val2) {
+            if (val2 == 0) {
+                throw new ArithmeticException("Division by zero");
+            } else {
+                return val1 / val2;
+            }
         }
     },
-    MOD('%') {
+    MOD('%') { // TODO: seems in Java, mod behaves differently than most languages
         @Override
-        public double apply(double a, double b) {
-            if (b == 0) throw new ArithmeticException("Modulo by zero");
-            return a % b;
+        public double apply(double val1, double val2) {
+            if (val2 == 0) {
+                throw new ArithmeticException("Modulo by zero");
+            } else {
+                return val1 % val2;
+            }
         }
     };
 
     private final Character symbol;
 
-    // Constructor to associate a symbol (e.g., "+") with each enum
+    // Associate each num with a math character
     Operator(Character symbol) {
         this.symbol = symbol;
     }
 
-    // Abstract method that each enum constant implements
-    public abstract double apply(double a, double b);
+    // Abstract method to implement each operator
+    public abstract double apply(double val1, double val2);
 
-    // Get the symbol associated with the operator (e.g., "+" for ADD)
-    public Character getSymbol() {
-        return symbol;
-    }
-
-    // Convert a symbol (like "+") to the corresponding OperatorType enum
+    // Get arithmetic operation associated with character symbol
     public static Operator fromSymbol(Character symbol) {
         for (Operator op : values()) {
             if (op.symbol.equals(symbol)) {
                 return op;
             }
         }
+        
         throw new IllegalArgumentException("Invalid operator symbol: " + symbol);
     }
 }

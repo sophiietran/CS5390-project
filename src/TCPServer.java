@@ -14,10 +14,16 @@ class TCPServer {
             ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
             DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
+            // First message client will send is to tell us their name
+            Message helloMessage = (Message) inFromClient.readObject();
+            helloMessage.getClientName(); // TODO: make object to keep track of connections and their details
+            outToClient.writeBytes(helloMessage.getClientName() + '\n'); // Echo client's name back to them as confirmation
+            outToClient.flush();
+
             while (true) {
-                // Read equation from client
+                // Read message from client
                 Message equation = (Message) inFromClient.readObject();
-                if (equation.getMessageType() == Message.MessageType.DISCONNECT) {
+                if (equation.getMessageType() == Message.MessageType.QUIT) {
                     System.out.println("Client has terminated connection.");
                     break;
                 } else {
@@ -31,7 +37,8 @@ class TCPServer {
                 } catch (Exception e) {
                     solution = "Invalid equation";
                 }
-                System.out.println("Sending solution: " + solution + "\n");
+                //System.out.println("Sending solution: " + solution + "\n");
+                System.out.printf("Sending solution: %.4f\n\n", Double.parseDouble(solution));
                 outToClient.writeBytes(solution + '\n');
                 outToClient.flush();
             }
@@ -72,7 +79,7 @@ class TCPServer {
     }
 
     // Order of operations check
-    private static boolean operatorIsPriority(Character ot) {
-        return ot == '*' || ot == '/' || ot == '%';
+    private static boolean operatorIsPriority(Character op) {
+        return op == '*' || op == '/' || op == '%';
     }
 }
