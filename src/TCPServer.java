@@ -152,7 +152,7 @@ class TCPServer {
 
                 // Log connection
                 clientLog.put(clientName, new ClientSession(clientName, connectTime, outToClient));
-                System.out.println("User: " + clientName + " connected at " + connectTime.format(formatter));
+                System.out.println("[User:" + clientName + " connected at " + connectTime.format(formatter) + "]");
 
                 // Handle incoming messages
                 while (connected.get()) {
@@ -179,7 +179,7 @@ class TCPServer {
             Duration duration = Duration.between(connectTime, disconnectTime);
 
             clientLog.remove(clientName);
-            System.out.println("[" + clientName + " disconnected at " + disconnectTime.format(formatter) + " after " + duration.toSeconds() + " seconds.]");
+            System.out.println("[" + clientName + " disconnected at " + disconnectTime.format(formatter) + " after " + duration.toSeconds() + " seconds]");
 
             try {
                 socket.close();
