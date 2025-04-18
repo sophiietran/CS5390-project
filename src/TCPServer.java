@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Map;
+import java.time.format.DateTimeFormatter;
 
 
 class TCPServer {
@@ -130,6 +131,7 @@ class TCPServer {
         private String clientName;
         private LocalDateTime connectTime;
         private AtomicBoolean connected = new AtomicBoolean(true); //atomic booleans are thread-safe booleans (this is new to me)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm:ss"); 
     
         public ClientHandler(Socket socket){
             this.socket = socket;
@@ -150,7 +152,7 @@ class TCPServer {
 
                 // Log connection
                 clientLog.put(clientName, new ClientSession(clientName, connectTime, outToClient));
-                System.out.println("User: " + clientName + " has connected at " + connectTime);
+                System.out.println("User: " + clientName + " connected at " + connectTime.format(formatter));
 
                 // Handle incoming messages
                 while (connected.get()) {
@@ -177,7 +179,7 @@ class TCPServer {
             Duration duration = Duration.between(connectTime, disconnectTime);
 
             clientLog.remove(clientName);
-            System.out.println("[" + clientName + " has terminated connection after " + duration.toSeconds() + " seconds.]");
+            System.out.println("[" + clientName + " disconnected at " + disconnectTime.format(formatter) + " after " + duration.toSeconds() + " seconds.]");
 
             try {
                 socket.close();
