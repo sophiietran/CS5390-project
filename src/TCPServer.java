@@ -7,8 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Map;
 
 
-// TODO: make something to keep track of connections and their details. each client will also need their own socket.
-
 class TCPServer {
     public static final int SERVER_PORT = 9001;
     private static final Map<String, ClientSession> clientLog = new ConcurrentHashMap<>(); // logs client sessions
@@ -20,47 +18,14 @@ class TCPServer {
         try (ServerSocket welcomeSocket = new ServerSocket(SERVER_PORT)) {
             System.out.println("Server listening for connections on port " + welcomeSocket.getLocalPort());
             
-
             // start a worker thread to watch request queue and process calculations
             new Thread(new CalcWorker()).start();
 
             // thread to accept clients continuously
             while(true){
-
                 Socket connectionSocket = welcomeSocket.accept();
-                // System.out.println("Connection established.");
-                new Thread(new ClientHandler(connectionSocket)).start(); //starts new thread for each client connected
+                new Thread(new ClientHandler(connectionSocket)).start(); //Starts new thread for each client connected
             }
-
-            /* ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
-            DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-
-            // First message client will send is to tell us their name. Echo it back to them as acknowledgment.
-            Message hello = (Message) inFromClient.readObject();
-            outToClient.writeBytes(hello.getClientName() + '\n');
-            System.out.println("User: " + hello.getClientName() + " has connected");
-            outToClient.flush();
-            */ // moved to clientHandler class
-
-            /*  while (true) {
-                // Read message from client
-                Message equation = (Message) inFromClient.readObject();
-                if (equation.getMessageType() == Message.MessageType.QUIT) {
-                    System.out.println("Client has terminated connection.");
-                    break;
-                } else if (equation.getMessageType() == Message.MessageType.CALC) {
-                    System.out.println("Received equation: " + equation);
-                    // Solve equation and send solution to client
-                    String solution;
-                    if (isValidOperation(equation.operator1, equation.operand2, equation.operator2, equation.operand3))
-                        solution = calculate(equation).toString();
-                    else
-                        solution = "Invalid equation";
-                    System.out.println("Sending solution: " + solution + "\n");
-                    outToClient.writeBytes(solution + '\n');
-                    outToClient.flush();
-                }
-            } */ // moved to calcWorker class
 
         } catch (EOFException e) {
             // Socket closed normally
@@ -100,9 +65,7 @@ class TCPServer {
         return op == '*' || op == '/' || op == '%';
     }
 
-
-
-    // Calculates session duration
+    // Info for client logging
     static class ClientSession {
         String name;
         LocalDateTime connectTime;
@@ -135,23 +98,23 @@ class TCPServer {
         }
     }
 
-    // handles all math requests in FIFO order
+    // Handles all math requests in FIFO order
     static class CalcWorker implements Runnable{
         public void run(){
             while(true){
                 try{
-                    CalcRequest request = requestQueue.take(); // blocking queue will wait until there is something in the queue -> do we need to put in a name(?)
+                    CalcRequest request = requestQueue.take(); // blocking queue will wait until there is something in the queue
                     Message eq = request.equation;
                     String solution;
 
                     if(isValidOperation(eq.operator1, eq.operand2, eq.operator2, eq.operand3))
-                        solution = String.format("%.4f", calculate(eq));
+                        solution = String.format("%.4f", calculate(eq)); // four values after decimal point, can change later
                     else
                         solution = "Invalid equation";
 
                     // gets proper client to send to
                     ClientSession session = clientLog.get((request.name));
-                    if(session != null){ //if they havent disconnected
+                    if(session != null){ 
                         session.send(solution);
                         System.out.println("Processed for " + request.name + ": " + eq + " = " + solution);
                     }
@@ -163,7 +126,6 @@ class TCPServer {
     }
 
     static class ClientHandler implements Runnable {
-    
         private final Socket socket;
         private String clientName;
         private LocalDateTime connectTime;
@@ -186,20 +148,19 @@ class TCPServer {
                 outToClient.write(clientName + '\n');
                 outToClient.flush();
 
-                // log connection
+                // Log connection
                 clientLog.put(clientName, new ClientSession(clientName, connectTime, outToClient));
                 System.out.println("User: " + clientName + " has connected at " + connectTime);
 
-                // handle incoming messages
+                // Handle incoming messages
                 while (connected.get()) {
                     Message equation = (Message) inFromClient.readObject();
 
                     if (equation.getMessageType() == Message.MessageType.QUIT) {
-                        // System.out.println("Client has terminated connection.");
                         disconnect();
                         break;
                     } else if (equation.getMessageType() == Message.MessageType.CALC) {
-                        System.out.println("Received equation from" + clientName + ": " + equation);
+                        System.out.println("Received equation from " + clientName + ": " + equation);
                         requestQueue.put(new CalcRequest(clientName, equation));
                     } else{
                         System.out.println("Unknown message type from " + clientName);
@@ -216,7 +177,7 @@ class TCPServer {
             Duration duration = Duration.between(connectTime, disconnectTime);
 
             clientLog.remove(clientName);
-            System.out.println(clientName + " has terminated connection after " + duration.toSeconds() + " seconds.");
+            System.out.println("[" + clientName + " has terminated connection after " + duration.toSeconds() + " seconds.]");
 
             try {
                 socket.close();
